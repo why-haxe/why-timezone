@@ -23,14 +23,18 @@ abstract Timezone(Int) {
 	/**
 	 * Format the give date (in caller's timezone) to this timezone
 	 */
-	public function formatDate(date:Date, ?format:String) {
-		var callerOffset = Date.now().getTimezoneOffset();
-		var target = date.delta((this + callerOffset) * 60000);
+	public function formatDate(local:Date, ?format:String) {
+		var target = getDate(local);
 		return
 			if (format == null)
 				target.toString();
 			else
 				target.format(format);
+	}
+	
+	public function getDate(local:Date) {
+		var callerOffset = Date.now().getTimezoneOffset();
+		return local.delta((this + callerOffset) * 60000);
 	}
 
 	public function toString() {
