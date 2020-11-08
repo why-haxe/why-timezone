@@ -5,7 +5,7 @@ using DateTools;
 // timezone representation in minutes
 // e.g. GMT+8 would be 8 * 60 = 480
 abstract Timezone(Int) {
-	public static var UTC = new Timezone(0);
+	public static final UTC = new Timezone(0);
 	public static inline function GMT(hours:Float) return new Timezone(hours);
 	
 	public inline function new(hours:Float)
@@ -24,7 +24,7 @@ abstract Timezone(Int) {
 	 * Format the give date (in caller's timezone) to this timezone
 	 */
 	public function formatDate(local:Date, ?format:String) {
-		var target = getDate(local);
+		final target = getDate(local);
 		return
 			if (format == null)
 				target.toString();
@@ -33,17 +33,24 @@ abstract Timezone(Int) {
 	}
 	
 	public function getDate(local:Date) {
-		var callerOffset = Date.now().getTimezoneOffset();
+		final callerOffset = Date.now().getTimezoneOffset();
 		return local.delta((this + callerOffset) * 60000);
 	}
 
 	public function toString() {
-		var hours = this / 60;
+		final hours = this / 60;
 		return hours == 0 ? 'UTC' : 'GMT' + (hours > 0 ? '+' : '') + hours;
 	}
 
 	public inline function toInt():Int
 		return this;
+	
+	// e.g. In integers: -800 means -08:00 or 730 means +07:30
+	public static function fromIso8601Style(v:Int) {
+		final hours = Std.int(v / 100);
+		final minutes = v % 100;
+		return new Timezone(hours + minutes / 60);
+	}
 
 	#if tink_stringly
 	@:to
