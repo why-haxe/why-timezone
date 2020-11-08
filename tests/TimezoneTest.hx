@@ -29,6 +29,7 @@ class TimezoneTest {
 	public function iso8601(v:Int, out:Int) {
 		final timezone = Timezone.fromIso8601Style(v);
 		asserts.assert(timezone.toInt() == out);
+		asserts.assert(timezone.toIso8601Style() == v);
 		return asserts.done();
 	}
 

@@ -46,10 +46,16 @@ abstract Timezone(Int) {
 		return this;
 	
 	// e.g. In integers: -800 means -08:00 or 730 means +07:30
-	public static function fromIso8601Style(v:Int) {
+	public static function fromIso8601Style(v:Int):Timezone {
 		final hours = Std.int(v / 100);
 		final minutes = v % 100;
-		return new Timezone(hours + minutes / 60);
+		return cast hours * 60 + minutes;
+	}
+	
+	public function toIso8601Style():Int {
+		final hours = Std.int(this / 60);
+		final minutes = this % 60;
+		return hours * 100 + minutes;
 	}
 
 	#if tink_stringly
