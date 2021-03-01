@@ -21,7 +21,7 @@ abstract Timezone(Int) {
 	}
 
 	/**
-	 * Format the give date (in caller's timezone) to this timezone
+	 * Format the given date (in caller's timezone) to this timezone
 	 */
 	public function formatDate(local:Date, ?format:String) {
 		final target = getDate(local);
