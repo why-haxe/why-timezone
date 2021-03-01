@@ -22,6 +22,8 @@ abstract Timezone(Int) {
 
 	/**
 	 * Format the given date (in caller's timezone) to this timezone
+	 * For example, on a machine with local timezone at GMT+8, 
+	 * `Timezone.UTC.formatDate(new Date(2000,0,1,0,0,0), '%F %T')` will give "1999-12-31 16:00:00"
 	 */
 	public function formatDate(local:Date, ?format:String) {
 		final target = getDate(local);
