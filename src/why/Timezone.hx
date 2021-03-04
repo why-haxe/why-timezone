@@ -4,6 +4,8 @@ using DateTools;
 
 // timezone representation in minutes
 // e.g. GMT+8 would be 8 * 60 = 480
+@:jsonStringify(tz -> tz.toMinutes())
+@:jsonParse(why.Timezone.fromMinutes)
 abstract Timezone(Int) {
 	public static final UTC = new Timezone(0);
 	public static inline function GMT(hours:Float) return new Timezone(hours);
@@ -44,6 +46,13 @@ abstract Timezone(Int) {
 		return hours == 0 ? 'UTC' : 'GMT' + (hours > 0 ? '+' : '') + hours;
 	}
 
+	public static inline function fromMinutes(v:Int):Timezone
+		return cast v;
+
+	public inline function toMinutes():Int
+		return this;
+
+	@:deprecated('use toMinutes instead')
 	public inline function toInt():Int
 		return this;
 	
@@ -74,13 +83,5 @@ abstract Timezone(Int) {
 	@:from
 	public static inline function fromPortion(v:tink.url.Portion):Timezone
 		return fromStringly(v);
-	#end
-
-	#if tink_json
-	@:to function toRepresentation():tink.json.Representation<Int>
-		return new tink.json.Representation(this);
-
-	@:from static function ofRepresentation<T>(rep:tink.json.Representation<Int>):Timezone
-		return cast rep.get();
 	#end
 }
