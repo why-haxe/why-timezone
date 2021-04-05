@@ -21,6 +21,11 @@ abstract Timezone(Int) {
 	public inline static function formatWithTimezone(date:Date, timezone:Timezone, ?format:String) {
 		return timezone.formatDate(date, format);
 	}
+	
+	public function createDate(year, month, date, hours, minutes, seconds) {
+		final date = new Date(year, month, date, hours, minutes, seconds);
+		return date.delta(-(this + date.getTimezoneOffset()) * 60000);
+	}
 
 	/**
 	 * Format the given date (in caller's timezone) to this timezone

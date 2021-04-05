@@ -21,6 +21,16 @@ class TimezoneTest {
 		asserts.assert(timezone.toString() == tz);
 		return asserts.done();
 	}
+	
+	@:variant(8, 2020, 0, 1, 7, 0, 0, '2020-01-01 07:00:00')
+	@:variant(16, 2020, 0, 1, 6, 0, 0, '2020-01-01 06:00:00')
+	@:variant(-8, 2020, 0, 1, 5, 0, 0, '2020-01-01 05:00:00')
+	public function createDate(tz:Int, yy, mm, dd, h, m, s, expected) {
+		final timezone = new Timezone(tz);
+		final date = timezone.createDate(yy, mm, dd, h, m, s);
+		asserts.assert(timezone.formatDate(date, '%F %T') == expected);
+		return asserts.done();
+	}
 
 	@:variant(700, 420)
 	@:variant(-700, -420)
