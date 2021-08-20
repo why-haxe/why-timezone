@@ -26,7 +26,7 @@ abstract Timezone(Second) {
 	public function createDate(year, month, date, hours, minutes, seconds) {
 		final date = new Date(year, month, date, hours, minutes, seconds);
 		final offset = new Minute(date.getTimezoneOffset());
-		return date.delta((-(this + (offset:Second)):Millisecond).toFloat());
+		return date.delta(-((this + offset):Millisecond).toFloat());
 	}
 
 	/**
@@ -45,7 +45,7 @@ abstract Timezone(Second) {
 	
 	public function getDate(local:Date):TimezoneLocalDate {
 		final callerOffset = new Minute(Date.now().getTimezoneOffset());
-		return cast local.delta((((this:Second) + (callerOffset:Second)):Millisecond).toFloat());
+		return cast local.delta(((this + callerOffset):Millisecond).toFloat());
 	}
 
 	public function toString() {
