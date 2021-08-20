@@ -87,7 +87,7 @@ abstract Timezone(Second) {
 		final seconds = Math.abs(this.toFloat());
 		final hours = Std.int(seconds / 3600);
 		final minutes = Std.int((seconds - hours * 3600) / 60);
-		return sign + '${Math.abs(hours)}'.lpad('0', 2) + ':' + '$minutes'.lpad('0', 2);
+		return sign + '$hours'.lpad('0', 2) + ':' + '$minutes'.lpad('0', 2);
 	}
 
 	#if tink_stringly
