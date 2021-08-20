@@ -1,0 +1,3 @@
+# @install: lix --silent download "gh://github.com/why-haxe/why-unit#b0d35c9907959f7c1a3b099931578ece0cc7a36e" into why-unit/0.0.0/github/b0d35c9907959f7c1a3b099931578ece0cc7a36e
+-cp ${HAXE_LIBCACHE}/why-unit/0.0.0/github/b0d35c9907959f7c1a3b099931578ece0cc7a36e/src
+-D why-unit=0.0.0

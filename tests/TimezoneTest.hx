@@ -1,5 +1,7 @@
 package;
 
+import why.unit.time.*;
+
 using why.Timezone;
 using DateTools;
 
@@ -16,7 +18,7 @@ class TimezoneTest {
 	@:variant(-16, '2019-12-31 08:00:00', 'GMT-16')
 	public function format(hours:Int, str:String, tz:String) {
 		final date = utc(2020, 0, 1, 0, 0, 0);
-		final timezone = new Timezone(hours);
+		final timezone = new Timezone(new Hour(hours));
 		asserts.assert(date.formatWithTimezone(timezone) == str);
 		asserts.assert(timezone.toString() == tz);
 		return asserts.done();
@@ -25,20 +27,20 @@ class TimezoneTest {
 	@:variant(8, 2020, 0, 1, 7, 0, 0, '2020-01-01 07:00:00')
 	@:variant(16, 2020, 0, 1, 6, 0, 0, '2020-01-01 06:00:00')
 	@:variant(-8, 2020, 0, 1, 5, 0, 0, '2020-01-01 05:00:00')
-	public function createDate(tz:Int, yy, mm, dd, h, m, s, expected) {
-		final timezone = new Timezone(tz);
+	public function createDate(hours:Int, yy, mm, dd, h, m, s, expected) {
+		final timezone = new Timezone(new Hour(hours));
 		final date = timezone.createDate(yy, mm, dd, h, m, s);
 		asserts.assert(timezone.formatDate(date, '%F %T') == expected);
 		return asserts.done();
 	}
 
-	@:variant(700, 420)
-	@:variant(-700, -420)
-	@:variant(830, 510)
-	@:variant(-830, -510)
-	public function iso8601(v:Int, out:Int) {
+	@:variant('+07:00', 420)
+	@:variant('-07:00', -420)
+	@:variant('+08:30', 510)
+	@:variant('-08:30', -510)
+	public function iso8601(v:String, out:Int) {
 		final timezone = Timezone.fromIso8601Style(v);
-		asserts.assert(timezone.toInt() == out);
+		asserts.assert(timezone.toMinutes().toFloat() == out);
 		asserts.assert(timezone.toIso8601Style() == v);
 		return asserts.done();
 	}

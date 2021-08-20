@@ -1,3 +1,4 @@
 -D why-timezone=0.0.0
 -cp src
+-lib why-unit
 --macro Sys.println("haxe_libraries/why-timezone.hxml:2: [Warning] Using dev version of library why-timezone")

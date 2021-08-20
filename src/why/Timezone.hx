@@ -1,21 +1,22 @@
 package why;
 
+import why.unit.time.*;
+
+using StringTools;
 using DateTools;
 
-// timezone representation in minutes
-// e.g. GMT+8 would be 8 * 60 = 480
 @:jsonStringify(tz -> tz.toMinutes())
 @:jsonParse(why.Timezone.fromMinutes)
-abstract Timezone(Int) {
-	public static final UTC = new Timezone(0);
-	public static inline function GMT(hours:Float) return new Timezone(hours);
+abstract Timezone(Second) {
+	public static final UTC = new Timezone(new Second(0));
+	public static inline function GMT(hours:Hour) return new Timezone(hours);
 	
-	public inline function new(hours:Float)
-		this = Math.round(hours * 60);
+	public inline function new(seconds:Second)
+		this = seconds;
 	
 
 	public static inline function local():Timezone {
-		return cast -Date.now().getTimezoneOffset();
+		return new Timezone(new Minute(-Date.now().getTimezoneOffset()));
 	}
 	
 	public inline static function formatWithTimezone(date:Date, timezone:Timezone, ?format:String) {
@@ -24,7 +25,8 @@ abstract Timezone(Int) {
 	
 	public function createDate(year, month, date, hours, minutes, seconds) {
 		final date = new Date(year, month, date, hours, minutes, seconds);
-		return date.delta(-(this + date.getTimezoneOffset()) * 60000);
+		final offset = new Minute(date.getTimezoneOffset());
+		return date.delta((-(this + (offset:Second)):Millisecond).toFloat());
 	}
 
 	/**
@@ -41,47 +43,61 @@ abstract Timezone(Int) {
 				target.format(format);
 	}
 	
-	public function getDate(local:Date) {
-		final callerOffset = Date.now().getTimezoneOffset();
-		return local.delta((this + callerOffset) * 60000);
+	public function getDate(local:Date):TimezoneLocalDate {
+		final callerOffset = new Minute(Date.now().getTimezoneOffset());
+		return cast local.delta((((this:Second) + (callerOffset:Second)):Millisecond).toFloat());
 	}
 
 	public function toString() {
-		final hours = this / 60;
+		final hours = (this:Hour).toFloat();
 		return hours == 0 ? 'UTC' : 'GMT' + (hours > 0 ? '+' : '') + hours;
 	}
 
-	public static inline function fromMinutes(v:Int):Timezone
-		return cast v;
+	@:from
+	public static inline function fromMinutes(v:Minute):Timezone
+		return new Timezone(v);
 
-	public inline function toMinutes():Int
-		return this;
-
-	@:deprecated('use toMinutes instead')
-	public inline function toInt():Int
+	@:to
+	public inline function toMinutes():Minute
 		return this;
 	
-	// e.g. In integers: -800 means -08:00 or 730 means +07:30
-	public static function fromIso8601Style(v:Int):Timezone {
-		final hours = Std.int(v / 100);
-		final minutes = v % 100;
-		return cast hours * 60 + minutes;
+	/**
+	 * Convert from string in ISO8601 style
+	 * @param v Example: -08:00 or 730 means +07:30
+	 * @return Timezone
+	 */
+	public static function fromIso8601Style(v:String):Timezone {
+		final regex = ~/^([+-])(\d{2}):(\d{2})$/;
+		if(regex.match(v)) {
+			final sign = regex.matched(1) == '+' ? 1 : -1;
+			final hours = Std.parseInt(regex.matched(2));
+			final minutes = Std.parseInt(regex.matched(3));
+			return new Timezone(new Minute(sign * (hours * 60 + minutes)));
+		} else {
+			throw '"$v" is invalid ISO8601 timezone format. Correct examples: "+08:00" or "-07:30"';
+		}
 	}
 	
-	public function toIso8601Style():Int {
-		final hours = Std.int(this / 60);
-		final minutes = this % 60;
-		return hours * 100 + minutes;
+	/**
+	 * Convert to string in ISO8601 style
+	 * @return String
+	 */
+	public function toIso8601Style():String {
+		final sign = this.toFloat() > 0 ? '+' : '-';
+		final seconds = Math.abs(this.toFloat());
+		final hours = Std.int(seconds / 3600);
+		final minutes = Std.int((seconds - hours * 3600) / 60);
+		return sign + '${Math.abs(hours)}'.lpad('0', 2) + ':' + '$minutes'.lpad('0', 2);
 	}
 
 	#if tink_stringly
 	@:to
 	public inline function toStringly():tink.Stringly
-		return this;
+		return this.toFloat();
 
 	@:from
 	public static inline function fromStringly(v:tink.Stringly):Timezone
-		return cast(v : Int);
+		return new Timezone(new Minute((v : Int)));
 	#end
 
 	#if tink_url
@@ -89,4 +105,21 @@ abstract Timezone(Int) {
 	public static inline function fromPortion(v:tink.url.Portion):Timezone
 		return fromStringly(v);
 	#end
+}
+
+
+/**
+ * A timezone-local date which is only useful for formatting/display purpose
+ */
+@:forward(getDate, getDay, getFullYear, getHours, getMinutes, getMonth, getSeconds, toString)
+abstract TimezoneLocalDate(Date) {
+	// forward DateTools functions
+	public inline function format(f)
+		return this.format(f);
+	
+	public inline function getMonthDays()
+		return this.getMonthDays();
+	
+	public inline function delta(s:Second):TimezoneLocalDate
+		return cast this.delta((s:Millisecond).toFloat());
 }
