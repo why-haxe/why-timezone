@@ -44,6 +44,20 @@ class TimezoneTest {
 		asserts.assert(timezone.toIso8601Style() == v);
 		return asserts.done();
 	}
+	
+	#if tink_querystring
+	
+	@:include
+	public function query() {
+		final timezone = new Timezone(new Hour(8));
+		final str = tink.QueryString.build({timezone: timezone});
+		final parsed = tink.QueryString.parse((str:{timezone:Timezone}));
+		asserts.assert(str == 'timezone=480');
+		asserts.assert(timezone.toMinutes() == parsed.sure().timezone.toMinutes());
+		return asserts.done();
+	}
+	
+	#end
 
 	inline function utc(year:Int, month:Int, date:Int, hour:Int, minute:Int, second:Int) {
 		final date = new Date(year, month, date, hour, minute, second);

@@ -95,7 +95,7 @@ abstract Timezone(Second) {
 	#if tink_stringly
 	@:to
 	public inline function toStringly():tink.Stringly
-		return this.toFloat();
+		return (this:Minute).toFloat();
 
 	@:from
 	public static inline function fromStringly(v:tink.Stringly):Timezone
