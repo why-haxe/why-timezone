@@ -5,8 +5,10 @@ import why.unit.time.*;
 using StringTools;
 using DateTools;
 
+#if tink_json
 @:jsonStringify(tz -> tz.toMinutes())
 @:jsonParse(why.Timezone.fromMinutes)
+#end
 abstract Timezone(Second) {
 	public static final UTC = new Timezone(new Second(0));
 	public static inline function GMT(hours:Hour) return new Timezone(hours);
@@ -122,4 +124,7 @@ abstract TimezoneLocalDate(Date) {
 	
 	public inline function delta(s:Second):TimezoneLocalDate
 		return cast this.delta((s:Millisecond).toFloat());
+	
+	public inline function toDate()
+		return this;
 }
